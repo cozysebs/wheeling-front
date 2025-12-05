@@ -1,11 +1,11 @@
 import ResponsiveGameFrame from "./ResponsiveGameFrame";
 
-const Game2048 = () => {
+const Coil = () => {
   return(
     // <div style={{ width:'100%', maxWidth: 480, margin: '0 auto' }}>
     //   <iframe
-    //     src="/2048/index.html"
-    //     title="2048 game"
+    //     src="/coil/index.html"
+    //     title="coil"
     //     style={{
     //       width: '100%',
     //       height: '500px',
@@ -14,11 +14,11 @@ const Game2048 = () => {
     //   />
     // </div>
     <ResponsiveGameFrame
-      src="/2048/index.html"
-      title="2048 game"
-      maxWidth={480}  // 2048 용도 (원래 레이아웃 유지)
+      src="/coil/index.html"
+      title="coil"
+      maxWidth={1024}
     />
   );
 };
 
-export default Game2048;
+export default Coil;

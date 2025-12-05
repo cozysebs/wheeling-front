@@ -13,6 +13,8 @@ import {
 import Game2048 from '../games/Game2048';
 import PlayingGames from '../components/PlayingGames';
 import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { games } from '../games/gamesConfig';
 
 const xThemeComponents = {
   ...chartsCustomizations,
@@ -23,7 +25,15 @@ const xThemeComponents = {
 
 export default function Playing(props) {
 
+  const { gameId } = useParams();
+  const navigate = useNavigate();
+
   const [isPlaying, setIsPlaying] = useState(false);  //esc, enter로 게임 제어
+
+  // URL 기준 현재 인덱스 계산  ===> 명확하게 이해가 가진 않음
+  const currentIndex = games.findIndex((g)=> g.id === gameId);
+  const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+  const CurrentGameComponent = games[safeIndex].component;
 
   useEffect(()=>{
     const handleKeyDown = (e) => {
@@ -34,13 +44,27 @@ export default function Playing(props) {
         // 메뉴/오버레이 숨기고 게임 플레이 화면
         setIsPlaying(true);
       }
+
+      // 방향키(위아래)는 isPlaying === false 일 때만 동작
+      if (!isPlaying) {
+        if(e.key === 'ArrowDown') {
+          const nextIndex = Math.min(safeIndex + 1, games.length - 1);
+          const nextId = games[nextIndex].id;
+          if(nextIndex !== safeIndex) {
+            navigate(`/playing/${nextId}`);
+          }
+        }else if(e.key === 'ArrowUp') {
+          const prevIndex = Math.max(safeIndex-1, 0);
+          const prevId = games[prevIndex].id;
+          if(prevIndex !== safeIndex) {
+            navigate(`/playing/${prevId}`);
+          }
+        }
+      }
     };
 
     const handleMessage = (event) => {
-      // 보안상 origin 체크도 가능하지만,
-      // 같은 도메인이라면 간단히 type만 확인해도 된다.
       if (!event.data || !event.data.type) return;
-
       if (event.data.type === 'GAME_ESC') {
         setIsPlaying(false);
       } else if (event.data.type === 'GAME_ENTER') {
@@ -56,7 +80,7 @@ export default function Playing(props) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('message', handleMessage);
     };
-  }, []);
+  }, [isPlaying, safeIndex, navigate]);
 
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
@@ -86,38 +110,88 @@ export default function Playing(props) {
               alignItems: 'center',
             }}
           >
-            <Stack
-              spacing={2}
+            <Box
               sx={{
+                position: 'relative',
+                minHeight: '100vh',
+                display: 'flex',
+                justifyContent: 'center',
                 alignItems: 'center',
-                mx: 3,
-                pb: 5,
-                mt: { xs: 8, md: 0 },
               }}
             >
-              {/* <Header /> */}
-              {/* <MainGrid /> */}
-              {/* <PlayingGames/> */}
-              <Game2048/>
-            </Stack>
-            {!isPlaying && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  inset: 0, // top:0, right:0, bottom:0, left:0
-                  bgcolor: 'rgba(0, 0, 0, 0.75)',   // 투명도 높은 검은 배경
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 10,
-                }}
-              >
-                <Box sx={{ color: '#fff', textAlign: 'center' }}>
-                  <p>Press Enter to start the game!</p>
+              {/* 미리보기 / 선택 모드 UI */}
+              {!isPlaying && (
+                <Box
+                  sx={{
+                    position: 'relative',
+                    width: '100%',
+                    //maxWidth: 800,
+                    height: '100vh',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      transition: 'transform 0.4s ease-out',
+                      transform: `translateY(-${safeIndex * 100}vh)`,   // safeIndex * 100vh 만큼 위로 올려서 n번째 게임을 화면 중앙에 위치
+                    }}
+                  >
+                    {games.map((game) => {
+                      const GameComp = game.component;
+                      return (
+                        <Box
+                          key={game.id}
+                          sx={{
+                            height: '100vh',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <GameComp/>
+                        </Box>
+                      );
+                    })}
+                  </Box>
                 </Box>
-              </Box>
-            )}
+              )}
+
+              {/* 실제 플레이 모드 UI */}
+              {isPlaying && (
+                <Stack
+                  spacing={2}
+                  sx={{
+                    alignItems: 'center',
+                    mx: 3,
+                    pb: 5,
+                    mt: { xs: 8, md: 0 },
+                  }}
+                >
+                  <CurrentGameComponent/>
+                </Stack>
+              )}
+              {/* 오버레이: isPlaying === false일 때만 표시 */}
+              {!isPlaying && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0, // top:0, right:0, bottom:0, left:0
+                    bgcolor: 'rgba(0, 0, 0, 0.75)',   // 투명도 높은 검은 배경
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                  }}
+                >
+                  <Box sx={{ color: '#fff', textAlign: 'center' }}>
+                    <p>Press Enter to start the game!</p>
+                    <p>↑ / ↓ Use the arrow keys to choose your game.</p>
+                  </Box>
+                </Box>
+              )}
+
+            </Box>
           </Box>
         </Box>
       </Box>
