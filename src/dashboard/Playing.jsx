@@ -9,7 +9,7 @@ import {
   datePickersCustomizations,
   treeViewCustomizations,
 } from './theme/customizations';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { games } from '../games/gamesConfig';
 
@@ -24,8 +24,8 @@ export default function Playing(props) {
 
   const { gameId } = useParams();
   const navigate = useNavigate();
-
   const [isPlaying, setIsPlaying] = useState(false);  //esc, enter로 게임 제어
+  const gameFrameRef = useRef(null);    // iframe DOM을 잡아둘 ref
 
   // URL 기준 현재 인덱스 계산  ===> 명확하게 이해가 가진 않음
   const currentIndex = games.findIndex((g)=> g.id === gameId);
@@ -78,6 +78,19 @@ export default function Playing(props) {
       window.removeEventListener('message', handleMessage);
     };
   }, [isPlaying, safeIndex, navigate]);
+
+  // isPlaying이 true로 바뀔 때 게임 iframe에 포커스
+  useEffect(()=>{
+    if (isPlaying && gameFrameRef.current) {
+      // iframe 자체에 포커스
+      gameFrameRef.current.focus();
+
+      // 대부분의 브라우저에서 contentWindow 에도 포커스를 주면 더 안정적
+      if (gameFrameRef.current.contentWindow) {
+        gameFrameRef.current.contentWindow.focus();
+      }
+    }
+  }, [isPlaying]);
 
   return (
     <AppTheme {...props} themeComponents={xThemeComponents}>
@@ -144,7 +157,7 @@ export default function Playing(props) {
                             justifyContent: 'center',
                           }}
                         >
-                          <GameComp/>
+                          <GameComp frameRef={gameFrameRef}/>   
                         </Box>
                       );
                     })}
@@ -164,7 +177,7 @@ export default function Playing(props) {
                     overflow: 'auto',    // 필요할 경우 세로 스크롤 허용
                   }}
                 >
-                  <CurrentGameComponent/>
+                  <CurrentGameComponent frameRef={gameFrameRef}/>
                 </Box>
               )}
               {/* 오버레이: isPlaying === false일 때만 표시 */}

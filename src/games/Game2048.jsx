@@ -9,7 +9,7 @@ import ResponsiveGameFrame from "./ResponsiveGameFrame";
 //   );
 // };
 
-const Game2048 = () => {
+const Game2048 = ({frameRef}) => {
   return (
     <div
       style={{
@@ -23,6 +23,8 @@ const Game2048 = () => {
       <iframe
         src="/2048/index.html"
         title="2048 game"
+        ref={frameRef}
+        tabIndex={-1}   // 포커스 가능하도록
         style={{
           width: '100%',
           height: '100%',

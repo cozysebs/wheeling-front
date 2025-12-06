@@ -1,4 +1,4 @@
-const Tetris = () => {
+const Tetris = ({frameRef}) => {
   return (
     <div
       style={{
@@ -13,6 +13,8 @@ const Tetris = () => {
       <iframe
         src="/tetris/index.html"
         title="tetris"
+        ref={frameRef}
+        tabIndex={-1}   // 포커스 가능하도록
         style={{
           width: '100%',
           height: '100%',

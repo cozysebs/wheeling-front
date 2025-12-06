@@ -9,7 +9,7 @@ import ResponsiveGameFrame from "./ResponsiveGameFrame";
 //   );
 // };
 
-const Coil = () => {
+const Coil = ({frameRef}) => {
   return (
     <div
       style={{
@@ -24,6 +24,8 @@ const Coil = () => {
       <iframe
         src="/coil/index.html"
         title="coil"
+        ref={frameRef}
+        tabIndex={-1}   // 포커스 가능하도록
         style={{
           width: '100%',
           height: '100%',

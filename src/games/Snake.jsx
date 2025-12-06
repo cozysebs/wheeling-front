@@ -1,4 +1,4 @@
-const Snake = () => {
+const Snake = ({frameRef}) => {
   return (
     <div
       style={{
@@ -13,6 +13,8 @@ const Snake = () => {
       <iframe
         src="/snake/index.html"
         title="snake"
+        ref={frameRef}
+        tabIndex={-1}   // 포커스 가능하도록
         style={{
           width: '100%',
           height: '100%',
