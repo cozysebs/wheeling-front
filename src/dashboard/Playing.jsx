@@ -1,7 +1,6 @@
 import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
 import SideMenu from './components/SideMenu';
 import AppTheme from '../shared-theme/AppTheme';
 import {
@@ -10,8 +9,6 @@ import {
   datePickersCustomizations,
   treeViewCustomizations,
 } from './theme/customizations';
-import Game2048 from '../games/Game2048';
-import PlayingGames from '../components/PlayingGames';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { games } from '../games/gamesConfig';
@@ -86,10 +83,10 @@ export default function Playing(props) {
     <AppTheme {...props} themeComponents={xThemeComponents}>
       <CssBaseline enableColorScheme />
       <Box sx={{ display: 'flex' }}>
+
         {/* 게임이 정지일 때만 메뉴가 보이게 */}
         {!isPlaying && <SideMenu />}
         
-     
         <Box
           component="main"
           sx={(theme) => ({
@@ -125,7 +122,6 @@ export default function Playing(props) {
                   sx={{
                     position: 'relative',
                     width: '100%',
-                    //maxWidth: 800,
                     height: '100vh',
                     overflow: 'hidden',
                   }}
@@ -158,17 +154,18 @@ export default function Playing(props) {
 
               {/* 실제 플레이 모드 UI */}
               {isPlaying && (
-                <Stack
-                  spacing={2}
+                <Box
                   sx={{
-                    alignItems: 'center',
-                    mx: 3,
-                    pb: 5,
-                    mt: { xs: 8, md: 0 },
+                    width: '100%',       // MAIN 영역 전체 사용
+                    height: '100vh',     // 브라우저 높이 기준
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'stretch',
+                    overflow: 'auto',    // 필요할 경우 세로 스크롤 허용
                   }}
                 >
                   <CurrentGameComponent/>
-                </Stack>
+                </Box>
               )}
               {/* 오버레이: isPlaying === false일 때만 표시 */}
               {!isPlaying && (

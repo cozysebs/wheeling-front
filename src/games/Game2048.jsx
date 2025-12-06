@@ -1,23 +1,36 @@
 import ResponsiveGameFrame from "./ResponsiveGameFrame";
 
+// const Game2048 = () => {
+//   return(
+//     <ResponsiveGameFrame
+//       src="/2048/index.html"
+//       title="2048 game"
+//     />
+//   );
+// };
+
 const Game2048 = () => {
-  return(
-    // <div style={{ width:'100%', maxWidth: 480, margin: '0 auto' }}>
-    //   <iframe
-    //     src="/2048/index.html"
-    //     title="2048 game"
-    //     style={{
-    //       width: '100%',
-    //       height: '500px',
-    //       border: 'none'
-    //     }}
-    //   />
-    // </div>
-    <ResponsiveGameFrame
-      src="/2048/index.html"
-      title="2048 game"
-      maxWidth={480}  // 2048 용도 (원래 레이아웃 유지)
-    />
+  return (
+    <div
+      style={{
+        width: '100vw',    // 브라우저 전체 폭
+        height: '100vh',   // 브라우저 전체 높이
+        margin: 0,
+        padding: 0,
+        overflow: 'hidden',
+      }}
+    >
+      <iframe
+        src="/2048/index.html"
+        title="2048 game"
+        style={{
+          width: '100%',
+          height: '100%',
+          border: 'none',
+          display: 'block',
+        }}
+      />
+    </div>
   );
 };
 

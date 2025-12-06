@@ -1,6 +1,8 @@
+// 더이상 사용하지 않기 때문에 삭제해도 됨.
+
 import { useEffect, useRef, useState } from "react";
 
-const ResponsiveGameFrame = ({ src, title, maxWidth = 600}) => {
+const ResponsiveGameFrame = ({ src, title }) => {
   const iframeRef = useRef(null);
   const [height, setHeight] = useState(500);
 
@@ -30,7 +32,7 @@ const ResponsiveGameFrame = ({ src, title, maxWidth = 600}) => {
     <div
       style={{
         width: '100%',
-        maxWidth: maxWidth,
+        height: '100vh',
         margin: '0 auto',
       }}
     >
@@ -40,8 +42,10 @@ const ResponsiveGameFrame = ({ src, title, maxWidth = 600}) => {
         title={title}
         style={{
           width: '100%',
-          height: `${height}px`,   //각 게임 내용 높이에 맞춰 자동 조정
+          // height: `${height}px`,   //각 게임 내용 높이에 맞춰 자동 조정
+          height: '100%',   //수정파트
           border: 'none',
+          display: 'block',
         }}
       />
     </div>
