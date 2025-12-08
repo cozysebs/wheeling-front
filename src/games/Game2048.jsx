@@ -1,14 +1,3 @@
-import ResponsiveGameFrame from "./ResponsiveGameFrame";
-
-// const Game2048 = () => {
-//   return(
-//     <ResponsiveGameFrame
-//       src="/2048/index.html"
-//       title="2048 game"
-//     />
-//   );
-// };
-
 const Game2048 = ({frameRef}) => {
   return (
     <div

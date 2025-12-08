@@ -1,11 +1,8 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Checkbox from '@mui/material/Checkbox';
 import CssBaseline from '@mui/material/CssBaseline';
 import Divider from '@mui/material/Divider';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
 import Link from '@mui/material/Link';
 import TextField from '@mui/material/TextField';
@@ -15,7 +12,13 @@ import MuiCard from '@mui/material/Card';
 import { styled } from '@mui/material/styles';
 import AppTheme from '../shared-theme/AppTheme';
 import ColorModeSelect from '../shared-theme/ColorModeSelect';
-import { GoogleIcon, FacebookIcon, SitemarkIcon } from './components/CustomIcons';
+import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import User from '../model/User';
+import useUserStore from '../store/useUserStore';
+import { useEffect } from 'react';
+import { registerService } from '../service/auth.service';
+import Alert from '@mui/material/Alert';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -60,63 +63,110 @@ const SignUpContainer = styled(Stack)(({ theme }) => ({
 }));
 
 export default function SignUp(props) {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [nameError, setNameError] = React.useState(false);
-  const [nameErrorMessage, setNameErrorMessage] = React.useState('');
+  const navigate = useNavigate();
 
-  const validateInputs = () => {
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
-    const name = document.getElementById('name');
+  const [user, setUser] = useState(new User('','','',''));
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-    let isValid = true;
+  const currentUser = useUserStore((state)=>state.user);
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
+
+  // 에러 지우기용
+  console.log(submitted);
+  console.log("current User: ", currentUser);
+
+  // 로그인된 유저 정보가 남아있어서 profile 페이지로 가고 현재 profile 페이지가 없어서 404에러
+  useEffect(()=>{
+    if(currentUser?.id){
+      navigate('/profile');
     }
+  }, []);
 
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-    }
+  const handleChange = (e) => {
+    const {name, value} = e.target;
+    setUser((prevState) => {
+      return {
+        ...prevState,
+        [name]: value,
+      };
+    });
+  }
 
-    if (!name.value || name.value.length < 1) {
-      setNameError(true);
-      setNameErrorMessage('Name is required.');
-      isValid = false;
-    } else {
-      setNameError(false);
-      setNameErrorMessage('');
-    }
+  const handleRegister = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
 
-    return isValid;
-  };
-
-  const handleSubmit = (event) => {
-    if (nameError || emailError || passwordError) {
-      event.preventDefault();
+    if(!user.username || !user.password || !user.name || !user.tel){
       return;
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      name: data.get('name'),
-      lastName: data.get('lastName'),
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+    setLoading(true);
+    registerService(user)
+    .then(()=>{
+      navigate('/signinside');
+    })
+    .catch((error) => {
+      console.log(error);
+      if(error?.response?.status === 409) {
+        setErrorMessage("That username is already taken.");
+      }else{
+        setErrorMessage("An unexpected error has occurred.");
+      }
+      setLoading(false);
+    })
+  }
+
+  // const validateInputs = () => {
+  //   const email = document.getElementById('email');
+  //   const password = document.getElementById('password');
+  //   const name = document.getElementById('name');
+
+  //   let isValid = true;
+
+  //   if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+  //     setEmailError(true);
+  //     setEmailErrorMessage('Please enter a valid email address.');
+  //     isValid = false;
+  //   } else {
+  //     setEmailError(false);
+  //     setEmailErrorMessage('');
+  //   }
+
+  //   if (!password.value || password.value.length < 6) {
+  //     setPasswordError(true);
+  //     setPasswordErrorMessage('Password must be at least 6 characters long.');
+  //     isValid = false;
+  //   } else {
+  //     setPasswordError(false);
+  //     setPasswordErrorMessage('');
+  //   }
+
+  //   if (!name.value || name.value.length < 1) {
+  //     setNameError(true);
+  //     setNameErrorMessage('Name is required.');
+  //     isValid = false;
+  //   } else {
+  //     setNameError(false);
+  //     setNameErrorMessage('');
+  //   }
+
+  //   return isValid;
+  // };
+
+  // const handleSubmit = (event) => {
+  //   if (nameError || emailError || passwordError) {
+  //     event.preventDefault();
+  //     return;
+  //   }
+  //   const data = new FormData(event.currentTarget);
+  //   console.log({
+  //     name: data.get('name'),
+  //     lastName: data.get('lastName'),
+  //     email: data.get('email'),
+  //     password: data.get('password'),
+  //   });
+  // };
 
   return (
     <AppTheme {...props}>
@@ -124,7 +174,6 @@ export default function SignUp(props) {
       <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
       <SignUpContainer direction="column" justifyContent="space-between">
         <Card variant="outlined">
-          {/* <SitemarkIcon /> */}
           <Typography
             component="h1"
             variant="h4"
@@ -132,79 +181,68 @@ export default function SignUp(props) {
           >
             Wheeling
           </Typography>
+
           <Divider/>
+
+          {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+
           <Box
             component="form"
-            onSubmit={handleSubmit}
+            onSubmit={handleRegister}
             sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
           >
             <FormControl>
               <TextField
-                autoComplete="tel"
-                name="tel"
+                type='text'
+                name='tel'
+                placeholder='Phone Number'
+                value={user.tel}
+                onChange={handleChange}
                 required
-                fullWidth
-                id="tel"
-                placeholder="Phone Number"
-                error={nameError}
-                helperText={nameErrorMessage}
-                color={nameError ? 'error' : 'primary'}
               />
             </FormControl>
             <FormControl>
               <TextField
+                type='password'
+                name='password'
+                placeholder='Password'
+                value={user.password}
+                onChange={handleChange}
                 required
-                fullWidth
-                id="password"
-                placeholder="password"
-                name="password"
-                autoComplete="password"
-                variant="outlined"
-                error={emailError}
-                helperText={emailErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
             <FormControl>
               <TextField
+                type='text'
+                name='name'
+                placeholder='Name'
+                value={user.name}
+                onChange={handleChange}
                 required
-                fullWidth
-                name="name"
-                placeholder="Full Name"
-                type="name"
-                id="name"
-                autoComplete="new-password"
-                variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
             <FormControl>
               <TextField
+                type='text'
+                name='username'
+                placeholder='User Name'
+                value={user.username}
+                onChange={handleChange}
                 required
-                fullWidth
-                name="username"
-                placeholder="User Name"
-                type="username"
-                id="username"
-                autoComplete="new-password"
-                variant="outlined"
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                color={passwordError ? 'error' : 'primary'}
               />
             </FormControl>
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              onClick={validateInputs}
+              disabled={loading}
             >
               Sign up
             </Button>
           </Box>
+
           <Divider/>
+          
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography sx={{ textAlign: 'center' }}>
               Already have an account?{' '}

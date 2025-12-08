@@ -13,6 +13,13 @@ import Typography from '@mui/material/Typography';
 import { styled } from '@mui/material/styles';
 import ForgotPassword from './ForgotPassword';
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from './CustomIcons';
+import { useState } from 'react';
+import User from '../../model/User';
+import useUserStore from '../../store/useUserStore';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { loginService } from '../../service/auth.service';
+import Alert from '@mui/material/Alert';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -33,58 +40,104 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export default function SignInCard() {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  const [open, setOpen] = React.useState(false);
+  // const [emailError, setEmailError] = React.useState(false);
+  // const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
+  // const [passwordError, setPasswordError] = React.useState(false);
+  // const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
+  // const [open, setOpen] = React.useState(false);
+  const [user, setUser] = useState(new User('','','',''));
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  const currentUser = useUserStore((state) => state.user);
+  const navigate = useNavigate();
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  console.log(submitted)
+  console.log("current User: ", currentUser)
 
-  const handleSubmit = (event) => {
-    if (emailError || passwordError) {
-      event.preventDefault();
-      return;
+  //로그인된 유저 정보가 남아있어서 profile 페이지로 가고 현재 profile 페이지가 없어서 404에러
+  useEffect(() => {
+    if(currentUser?.id) {
+      navigate('/profile');
     }
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+  },[]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(name,value);
+    setUser((prevState) => {
+      return {
+        ...prevState,
+        [name]: value,
+      };
     });
   };
 
-  const validateInputs = () => {
-    const email = document.getElementById('email');
-    const password = document.getElementById('password');
+  const setCurrentUser = useUserStore((state)=>state.setCurrentUser);
 
-    let isValid = true;
+  const handleLogin = (e) => {
+    e.preventDefault();
+    setSubmitted(true);
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-      setEmailError(true);
-      setEmailErrorMessage('Please enter a valid email address.');
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage('');
+    if(!user.username || !user.password){
+      return;
     }
 
-    if (!password.value || password.value.length < 6) {
-      setPasswordError(true);
-      setPasswordErrorMessage('Password must be at least 6 characters long.');
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage('');
-    }
+    setLoading(true);
 
-    return isValid;
+    loginService(user)
+      .then((response) => {
+        setCurrentUser(response.data);
+        navigate('/profile');
+      })
+      .catch((error)=>{
+        console.log(error);
+        setErrorMessage('Username, or password is incorrect.');
+      });
+
+    setLoading(false);
   };
+
+  // const handleClickOpen = () => {
+  //   setOpen(true);
+  // };
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
+  // const handleSubmit = (event) => {
+  //   if (emailError || passwordError) {
+  //     event.preventDefault();
+  //     return;
+  //   }
+  //   const data = new FormData(event.currentTarget);
+  //   console.log({
+  //     email: data.get('email'),
+  //     password: data.get('password'),
+  //   });
+  // };
+  // const validateInputs = () => {
+  //   const email = document.getElementById('email');
+  //   const password = document.getElementById('password');
+  //   let isValid = true;
+  //   if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+  //     setEmailError(true);
+  //     setEmailErrorMessage('Please enter a valid email address.');
+  //     isValid = false;
+  //   } else {
+  //     setEmailError(false);
+  //     setEmailErrorMessage('');
+  //   }
+  //   if (!password.value || password.value.length < 6) {
+  //     setPasswordError(true);
+  //     setPasswordErrorMessage('Password must be at least 6 characters long.');
+  //     isValid = false;
+  //   } else {
+  //     setPasswordError(false);
+  //     setPasswordErrorMessage('');
+  //   }
+  //   return isValid;
+  // };
 
   return (
     <Card variant="outlined">
@@ -98,74 +151,71 @@ export default function SignInCard() {
       >
         Wheeling
       </Typography>
+
       <Divider/>
+
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+
       <Box
         component="form"
-        onSubmit={handleSubmit}
-        noValidate
-        sx={{ display: 'flex', flexDirection: 'column', width: '100%', gap: 2 }}
+        onSubmit={handleLogin}
+        sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}
       >
         <FormControl>
           <TextField
-            error={emailError}
-            helperText={emailErrorMessage}
-            id="username"
-            type="username"
-            name="username"
-            placeholder="Phone number  or  User name"
-            autoComplete="username"
-            autoFocus
+            type='text'
+            name='username'
+            placeholder='Username'
+            value={user.username}
+            onChange={handleChange}
             required
-            fullWidth
-            variant="outlined"
-            color={emailError ? 'error' : 'primary'}
           />
         </FormControl>
         <FormControl>
           <TextField
-            error={passwordError}
-            helperText={passwordErrorMessage}
-            name="password"
-            placeholder="password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            autoFocus
+            type='password'
+            name='password'
+            placeholder='Password'
+            value={user.password}
+            onChange={handleChange}
             required
-            fullWidth
-            variant="outlined"
-            color={passwordError ? 'error' : 'primary'}
           />
         </FormControl>
-        <Link
-          component="button"
-          type="button"
-          onClick={handleClickOpen}
-          variant="body4"
-          sx={{ alignSelf: 'baseline' }}
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          disabled={loading}
         >
-          Forgot your password?
-        </Link>
-        <Divider/>
-        
-        <ForgotPassword open={open} handleClose={handleClose} />
-        <Button type="submit" fullWidth variant="contained" onClick={validateInputs}>
           Sign in
         </Button>
-        <Typography sx={{ textAlign: 'center' }}>
-          Don&apos;t have an account?{' '}
-          <span>
-            <Link
-              href="/signup"
-              variant="body2"
-              sx={{ alignSelf: 'center' }}
-            >
-              Sign up
-            </Link>
-          </span>
-        </Typography>
-      </Box>
-      
+      </Box>   
+
+      {/* <Link
+        component="button"
+        type="button"
+        onClick={handleClickOpen}
+        variant="body4"
+        sx={{ alignSelf: 'baseline' }}
+      >
+        Forgot your password?
+      </Link> */}
+      {/* <ForgotPassword open={open} handleClose={handleClose} /> */}
+
+      <Divider/>
+        
+      <Typography sx={{ textAlign: 'center' }}>
+        Don&apos;t have an account?{' '}
+        <span>
+          <Link
+            href="/signup"
+            variant="body2"
+            sx={{ alignSelf: 'center' }}
+          >
+            Sign up
+          </Link>
+        </span>
+      </Typography>
     </Card>
   );
 }

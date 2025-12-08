@@ -1,14 +1,3 @@
-import ResponsiveGameFrame from "./ResponsiveGameFrame";
-
-// const Coil = () => {
-//   return(
-//     <ResponsiveGameFrame
-//       src="/coil/index.html"
-//       title="coil"
-//     />
-//   );
-// };
-
 const Coil = ({frameRef}) => {
   return (
     <div
