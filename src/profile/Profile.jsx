@@ -6,6 +6,7 @@ import {
   Button,
   Chip,
   Container,
+  CssBaseline,
   Grid,
   Stack,
   Tab,
@@ -17,8 +18,13 @@ import {
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import SideMenu from '../dashboard/components/SideMenu';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
+import AppTheme from '../shared-theme/AppTheme';
+import useUserStore from '../store/useUserStore';
 
 function ProfileHeader() {
+  const currentUser = useUserStore((state)=>state.user);
+  console.log("profile header current user", currentUser)
+
   return (
     <Box sx={{ px: { xs: 2, md: 6 }, pt: 6, pb: 4 }}>
       <Grid container spacing={4} alignItems="center">
@@ -46,7 +52,7 @@ function ProfileHeader() {
             {/* 아이디 + 버튼 영역 */}
             <Stack direction="row" spacing={2} alignItems="center">
               <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                username
+                {currentUser.username}
               </Typography>
               <Button
                 size="small"
@@ -79,14 +85,8 @@ function ProfileHeader() {
             {/* 이름 / 사용자 태그 */}
             <Stack spacing={0.5}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                name
+                {currentUser.name}
               </Typography>
-              <Chip
-                label="@cozysebs"
-                size="small"
-                variant="outlined"
-                sx={{ width: 'fit-content', fontSize: 11 }}
-              />
             </Stack>
           </Stack>
         </Grid>
@@ -125,7 +125,7 @@ function ProfileTabs({ value, onChange }) {
   );
 }
 
-export default function Profile() {
+export default function Profile(props) {
   const [tabValue, setTabValue] = useState(2); // "저장됨" 탭 기본 선택
 
   const handleTabChange = (_event, newValue) => {
@@ -133,12 +133,15 @@ export default function Profile() {
   };
 
   return (
-    <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex' }}>
-      <SideMenu />
-      <Container maxWidth="lg" disableGutters>
-        <ProfileHeader />
-        <ProfileTabs value={tabValue} onChange={handleTabChange} />
-      </Container>
-    </Box>
+    <AppTheme {...props}>
+      <CssBaseline enableColorScheme/>
+      <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex' }}>
+        <SideMenu />
+        <Container maxWidth="lg" disableGutters>
+          <ProfileHeader />
+          <ProfileTabs value={tabValue} onChange={handleTabChange} />
+        </Container>
+      </Box>
+    </AppTheme>
   );
 }

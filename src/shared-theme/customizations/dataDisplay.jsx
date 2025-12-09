@@ -6,7 +6,6 @@ import { chipClasses } from '@mui/material/Chip';
 import { iconButtonClasses } from '@mui/material/IconButton';
 import { gray, red, green } from '../themePrimitives';
 
-/* eslint-disable import/prefer-default-export */
 export const dataDisplayCustomizations = {
   MuiList: {
     styleOverrides: {
@@ -22,17 +21,17 @@ export const dataDisplayCustomizations = {
     styleOverrides: {
       root: ({ theme }) => ({
         [`& .${svgIconClasses.root}`]: {
-          width: '1rem',
-          height: '1rem',
+          width: '1.25rem',
+          height: '1.25rem',
           color: (theme.vars || theme).palette.text.secondary,
         },
         [`& .${typographyClasses.root}`]: {
-          fontWeight: 500,
+          fontWeight: 600,
         },
         [`& .${buttonBaseClasses.root}`]: {
           display: 'flex',
           gap: 8,
-          padding: '2px 8px',
+          padding: '4px 0px',
           borderRadius: (theme.vars || theme).shape.borderRadius,
           opacity: 0.7,
           '&.Mui-selected': {
