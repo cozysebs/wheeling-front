@@ -6,6 +6,11 @@ import AppTheme from '../shared-theme/AppTheme';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { games } from '../games/gamesConfig';
+import { Button, Typography } from '@mui/material';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import PlayingBottomNavigation from './components/PlayingBottomNavigation';
+
 
 export default function Playing(props) {
 
@@ -181,13 +186,53 @@ export default function Playing(props) {
                     zIndex: 10,
                   }}
                 >
-                  <Box sx={{ color: '#fff', textAlign: 'center' }}>
-                    <p>Press Enter to start the game!</p>
-                    <p>↑ / ↓ Use the arrow keys to choose your game.</p>
-                  </Box>
+                  <Button
+                    variant='contained'
+                    onClick={()=>setIsPlaying(true)}  // 버튼 클릭으로 바로 시작
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      textAlign: 'center',
+                      gap: 2,
+                      px: 6,
+                      py: 5.5,
+                      borderRadius: 3,
+                      backgroundImage: 'none',
+                      background: '#f5f6fa',
+                      color: 'text.primary',
+                      textTransform: 'none',             // 대문자 변환 X
+                      boxShadow: '0 8px 24px rgba(0,0,0,0.45)',
+                      '&:hover': {
+                        backgroundImage: 'none',
+                        background: '#e1e4f0',
+                        boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
+                      },
+                    }}
+                  >
+                    <Box sx={{ textAlign: 'center'}}>
+                      {/* 1문단: 메인 메시지 */}
+                      <Typography variant="h2" fontWeight={700}>
+                        Click or Press Enter!
+                      </Typography>
+
+                      {/* 2문단: 보조 설명 + ↑ / ↓ 아이콘  */}
+                      <Typography
+                        variant='body2'
+                        color='text.secondary'
+                        sx={{mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'center'}}
+                      >
+                        <ArrowUpwardIcon sx={{ fontSize: 18 }}/>
+                        /
+                        <ArrowDownwardIcon sx={{ fontSize: 18 }}/>
+                        <span>Use the arrow keys to choose your game.</span>
+                      </Typography>
+                    </Box>
+                  </Button>
+
+                  {/* Bottom Navigation 만들기 */}
+                  <PlayingBottomNavigation/>
                 </Box>
               )}
-
             </Box>
           </Box>
         </Box>
