@@ -7,6 +7,7 @@ import SignUp from "./sign-up/SignUp"
 import NotFound from "./guard/errorpage/NotFound"
 import UnAuthorized from "./guard/errorpage/UnAuthorized"
 import Profile from "./profile/Profile"
+import CommingSoon from "./common/CommingSoon"
 
 function App() {
 
@@ -19,6 +20,11 @@ function App() {
         <Route path="/signinside" element={<SignInSide/>}/>
         <Route path="/signup" element={<SignUp/>}/>
         <Route path="/profile" element={<Profile/>}/>
+        
+
+
+        {/* 미완성 페이지 */}
+        <Route path="/commingsoon" element={<CommingSoon/>}/>
 
         {/* 에러 페이지 */}
         <Route path='/404' element={<NotFound/>}></Route>

@@ -9,6 +9,10 @@ import SelectContent from './SelectContent';
 import MenuContent from './MenuContent';
 import CardAlert from './CardAlert';
 import OptionsMenu from './OptionsMenu';
+import useUserStore from '../../store/useUserStore';
+import LoginIcon from '@mui/icons-material/Login';
+import { Button } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 const drawerWidth = 240;
 
@@ -24,6 +28,10 @@ const Drawer = styled(MuiDrawer)({
 });
 
 export default function SideMenu() {
+
+  const currentUser = useUserStore((state)=>state.user);
+  console.log("side menu current user: ", currentUser)
+
   return (
     <Drawer
       variant="permanent"
@@ -55,32 +63,40 @@ export default function SideMenu() {
         <MenuContent />
         <CardAlert />
       </Box>
-      <Stack
-        direction="row"
-        sx={{
-          p: 2,
-          gap: 1,
-          alignItems: 'center',
-          borderTop: '1px solid',
-          borderColor: 'divider',
-        }}
-      >
-        <Avatar
-          sizes="small"
-          alt="Riley Carter"
-          src="/static/images/avatar/7.jpg"
-          sx={{ width: 36, height: 36 }}
-        />
-        <Box sx={{ mr: 'auto' }}>
-          <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
-            Riley Carter
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            riley@email.com
-          </Typography>
-        </Box>
-        <OptionsMenu />
-      </Stack>
+      {!currentUser && (
+        <Button variant="outlined" startIcon={<LoginIcon />}>
+          <Link to='/signinside'>
+            Sign in
+          </Link>
+        </Button>
+      )}
+      {currentUser && (
+        <Stack
+          direction="row"
+          sx={{
+            p: 2,
+            gap: 1,
+            alignItems: 'center',
+            borderTop: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Avatar
+            sizes="small"
+            alt={currentUser.username}
+            sx={{ width: 36, height: 36 }}
+          />
+          <Box sx={{ mr: 'auto' }}>
+            <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: '16px' }}>
+              {currentUser.username}
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {currentUser.name}
+            </Typography>
+          </Box>
+          <OptionsMenu /> 
+        </Stack>
+      )}
     </Drawer>
   );
 }

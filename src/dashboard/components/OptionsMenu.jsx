@@ -10,12 +10,25 @@ import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import MenuButton from './MenuButton';
+import useUserStore from '../../store/useUserStore';
+import { useNavigate } from 'react-router-dom';
 
 const MenuItem = styled(MuiMenuItem)({
   margin: '2px 0',
 });
 
 export default function OptionsMenu() {
+  
+  //로그아웃 처리
+  const navigate = useNavigate();
+  const logout = () => {
+    const clearCurrentUser = useUserStore.getState().clearCurrentUser;
+    clearCurrentUser();
+    setTimeout(()=>{
+      navigate('/signinside')
+    },100);
+  }
+
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
@@ -60,7 +73,7 @@ export default function OptionsMenu() {
         <MenuItem onClick={handleClose}>Settings</MenuItem>
         <Divider />
         <MenuItem
-          onClick={handleClose}
+          onClick={logout}
           sx={{
             [`& .${listItemIconClasses.root}`]: {
               ml: 'auto',

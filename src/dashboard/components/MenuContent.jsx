@@ -10,11 +10,12 @@ import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { NavLink } from 'react-router-dom';
 
 const mainListItems = [
-  { text: 'Playing', icon: <PlayArrowIcon /> },
-  { text: 'Message', icon: <ForwardToInboxIcon /> },
-  { text: 'Profile', icon: <AccountCircleIcon /> },
+  { text: 'Playing', icon: <PlayArrowIcon />, navlink: '/' },
+  { text: 'Message', icon: <ForwardToInboxIcon />, navlink: '/commingsoon'  },
+  { text: 'Profile', icon: <AccountCircleIcon />, navlink: '/profile'  },
 ];
 
 const secondaryListItems = [
@@ -29,10 +30,12 @@ export default function MenuContent() {
       <List dense>
         {mainListItems.map((item, index) => (
           <ListItem key={index} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton selected={index === 0}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItemButton>
+            <NavLink to={item.navlink}>
+              <ListItemButton selected={index === 0}>
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText primary={item.text} />
+              </ListItemButton>
+            </NavLink>
           </ListItem>
         ))}
       </List>
