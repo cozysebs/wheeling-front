@@ -10,19 +10,33 @@ import { Button, Typography } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import PlayingBottomNavigation from './components/PlayingBottomNavigation';
+import { syncGamesService } from '../service/game.service';
 
 
 export default function Playing(props) {
 
-  const { gameId } = useParams();
+  const { gameSlug } = useParams();
   const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);  //esc, enter로 게임 제어
   const gameFrameRef = useRef(null);    // iframe DOM을 잡아둘 ref
 
   // URL 기준 현재 인덱스 계산  ===> 명확하게 이해가 가진 않음
-  const currentIndex = games.findIndex((g)=> g.id === gameId);
+  const currentIndex = games.findIndex((g)=> g.slug === gameSlug);
   const safeIndex = currentIndex === -1 ? 0 : currentIndex;
   const CurrentGameComponent = games[safeIndex].component;
+
+  // 게임 메타 정보를 백엔드와 동기화
+  useEffect(()=> {
+    const syncGames = async () => {
+      try {
+        await syncGamesService(games);  // gamesConfig 전체 전송
+        console.log("게임 동기화 완료");
+      } catch(e) {
+        console.error("게임 동기화 실패", e);
+      }
+    };
+    syncGames();
+  }, []); // 최초 마운트 시 1회 호출
 
   useEffect(()=>{
     const handleKeyDown = (e) => {
@@ -38,15 +52,15 @@ export default function Playing(props) {
       if (!isPlaying) {
         if(e.key === 'ArrowDown') {
           const nextIndex = Math.min(safeIndex + 1, games.length - 1);
-          const nextId = games[nextIndex].id;
+          const nextSlug = games[nextIndex].slug;
           if(nextIndex !== safeIndex) {
-            navigate(`/playing/${nextId}`);
+            navigate(`/playing/${nextSlug}`);
           }
         }else if(e.key === 'ArrowUp') {
           const prevIndex = Math.max(safeIndex-1, 0);
-          const prevId = games[prevIndex].id;
+          const prevSlug = games[prevIndex].slug;
           if(prevIndex !== safeIndex) {
-            navigate(`/playing/${prevId}`);
+            navigate(`/playing/${prevSlug}`);
           }
         }
       }
@@ -141,7 +155,7 @@ export default function Playing(props) {
                       const GameComp = game.component;
                       return (
                         <Box
-                          key={game.id}
+                          key={game.slug}
                           sx={{
                             height: '100vh',
                             display: 'flex',
