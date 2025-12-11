@@ -11,6 +11,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import PlayingBottomNavigation from './components/PlayingBottomNavigation';
 import { syncGamesService } from '../service/game.service';
+import { getGameLikeInfo, toggleGameLike } from '../service/game.service';
 
 
 export default function Playing(props) {
@@ -24,6 +25,13 @@ export default function Playing(props) {
   const currentIndex = games.findIndex((g)=> g.slug === gameSlug);
   const safeIndex = currentIndex === -1 ? 0 : currentIndex;
   const CurrentGameComponent = games[safeIndex].component;
+
+  // 좋아요 상태
+  const [likeState, setLikeState] = useState({
+    liked: false,
+    likeCount: 0,
+    loading: false,
+  });
 
   // 게임 메타 정보를 백엔드와 동기화
   useEffect(()=> {
@@ -83,7 +91,7 @@ export default function Playing(props) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('message', handleMessage);
     };
-  }, [isPlaying, safeIndex, navigate]);
+  }, [isPlaying, safeIndex, navigate]);   // isPlaying, safeIndex, navigate 상태값이 변경될 때마다 useEffect의 콜백함수가 실행된다. 
 
   // isPlaying이 true로 바뀔 때 게임 iframe에 포커스
   useEffect(()=>{
@@ -97,6 +105,59 @@ export default function Playing(props) {
       }
     }
   }, [isPlaying]);
+
+  // gameSlug 기준 좋아요 정보 로딩
+  useEffect(() => {
+    const fetchLikeInfo = async () => {
+      if (!gameSlug) return;
+      try {
+        const res = await getGameLikeInfo(gameSlug);
+        const data = res.data;
+        setLikeState((prev) => ({
+          ...prev,
+          liked: data.liked,
+          likeCount: data.likeCount,
+        }));
+        console.log("좋아요 정보 불러오기 성공")
+      } catch(e) {
+        console.error("좋아요 정보 불러오기 실패", e);
+        // 실패 시에는 기본값(0, false) 유지
+        setLikeState((prev) => ({
+          ...prev,
+          liked: false,
+          likeCount: 0,
+        }));
+      }
+    };
+    fetchLikeInfo();
+  }, [gameSlug]);
+
+  const handleToggleLike = async () => {
+    if (!gameSlug) return;
+
+    try {
+      setLikeState((prev) => ({
+        ...prev,
+        loading: true,
+      }));
+
+      const res = await toggleGameLike(gameSlug);
+      const data = res.data;
+
+      setLikeState({
+        liked: data.liked,
+        likeCount: data.likeCount,
+        loading: false,
+      });
+    } catch (e) {
+      console.error("좋아요 토글 실패", e);
+      // 실패 시 로딩만 false로 되돌림
+      setLikeState((prev) => ({
+        ...prev,
+        loading: false,
+      }));
+    }
+  };
 
   return (
     <AppTheme {...props}>
@@ -243,8 +304,13 @@ export default function Playing(props) {
                     </Box>
                   </Button>
 
-                  {/* Bottom Navigation 만들기 */}
-                  <PlayingBottomNavigation/>
+                  {/* Bottom Navigation(좋아요, 북마크, 댓글, 공유) */}
+                  <PlayingBottomNavigation
+                    liked={likeState.liked}
+                    likeCount={likeState.likeCount}
+                    loading={likeState.loading}
+                    onToggleLike={handleToggleLike}
+                  />
                 </Box>
               )}
             </Box>

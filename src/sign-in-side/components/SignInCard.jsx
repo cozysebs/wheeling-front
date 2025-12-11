@@ -88,7 +88,16 @@ export default function SignInCard() {
 
     loginService(user)
       .then((response) => {
-        setCurrentUser(response.data);
+        const userData = response.data;
+
+        setCurrentUser(userData);
+
+        console.log("UserDataToken: ", userData.token)
+        // JWT 토큰을 localStorage에 저장 (api 인터셉터에서 사용)
+        if (userData.token) {
+          localStorage.setItem("authorization", userData.token)
+        }
+
         navigate('/profile');
       })
       .catch((error)=>{
