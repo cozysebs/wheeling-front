@@ -8,7 +8,8 @@ export const api = axios.create({
 api.interceptors.request.use((config)=>{
   const token = localStorage.getItem("authorization");
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // config.headers.Authorization = `Bearer ${token}`;  // 아래로 수정함. 오류시 원상복구.
+    config.headers["authorization"] = `Bearer ${token}`;
   }
   return config;
 });

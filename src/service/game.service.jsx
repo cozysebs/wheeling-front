@@ -34,3 +34,27 @@ export const getGameLikeInfo = (gameSlug) => {
 export const toggleGameLike = (gameSlug) => {
   return api.post(`${BASE_URL}/${gameSlug}/likes/toggle`);
 };
+
+/**
+ * 특정 게임(slug)의 북마크 상태/개수 조회
+ * GET /api/games/{slug}/bookmarks
+ */
+export const getGameBookmarkInfo = (gameSlug) => {
+  return api.get(`${BASE_URL}/${gameSlug}/bookmarks`);
+};
+
+/**
+ * 특정 게임(slug)에 대한 북마크 토글
+ * POST /api/games/{slug}/bookmarks/toggle
+ */
+export const toggleGameBookmark = (gameSlug) => {
+  return api.post(`${BASE_URL}/${gameSlug}/bookmarks/toggle`);
+};
+
+/**
+ * 내 북마크 게임 리스트 조회 (프로필 페이지용)
+ * GET /api/games/bookmarks/me
+ */
+export const getMyBookmarks = () => {
+  return api.get(`${BASE_URL}/bookmarks/me`);
+};

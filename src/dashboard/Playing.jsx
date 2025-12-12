@@ -12,6 +12,7 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import PlayingBottomNavigation from './components/PlayingBottomNavigation';
 import { syncGamesService } from '../service/game.service';
 import { getGameLikeInfo, toggleGameLike } from '../service/game.service';
+import { getGameBookmarkInfo, toggleGameBookmark } from '../service/game.service';
 
 
 export default function Playing(props) {
@@ -30,6 +31,13 @@ export default function Playing(props) {
   const [likeState, setLikeState] = useState({
     liked: false,
     likeCount: 0,
+    loading: false,
+  });
+
+  // 북마크 상태
+  const [bookmarkState, setBookmarkState] = useState({
+    bookmarked: false,
+    bookmarkCount: 0,
     loading: false,
   });
 
@@ -156,6 +164,54 @@ export default function Playing(props) {
         ...prev,
         loading: false,
       }));
+    }
+  };
+
+  useEffect(() => {
+    const fetchBookmarkInfo = async () => {
+      if (!gameSlug) return;
+      try {
+        const res = await getGameBookmarkInfo(gameSlug);
+        const data = res.data;
+        setBookmarkState((prev) => ({
+          ...prev,
+          bookmarked: data.bookmarked,
+          bookmarkCount: data.bookmarkCount,
+        }));
+      } catch (e) {
+        console.error("북마크 정보 불러오기 실패", e)
+        setBookmarkState((prev) => ({
+          ...prev,
+          bookmarked: false,
+          bookmarkCount: 0,
+        }));
+      }
+    };
+    fetchBookmarkInfo();
+  }, [gameSlug]);
+
+  const handleToggleBookmark = async () => {
+    if (!gameSlug) return;
+
+    try {
+      setBookmarkState((prev) => ({...prev, loading: true}));
+
+      const res = await toggleGameBookmark(gameSlug);
+      const data = res.data;
+
+      setBookmarkState({
+        bookmarked: data.bookmarked,
+        bookmarkCount: data.bookmarkCount,
+        loading: false,
+      });
+    } catch(e) {
+      console.error("북마크 토글 실패", e);
+
+      if (e?.response?.status === 401) {
+        navigate("/signinside");
+      }
+
+      setBookmarkState((prev) => ({...prev, loading: false}));
     }
   };
 
@@ -310,6 +366,11 @@ export default function Playing(props) {
                     likeCount={likeState.likeCount}
                     loading={likeState.loading}
                     onToggleLike={handleToggleLike}
+
+                    bookmarked={bookmarkState.bookmarked}
+                    bookmarkCount={bookmarkState.bookmarkCount}
+                    bookmarkLoading={bookmarkState.loading}
+                    onToggleBookmark={handleToggleBookmark}
                   />
                 </Box>
               )}

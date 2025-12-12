@@ -9,12 +9,15 @@ import CommentIcon from '@mui/icons-material/Comment';
 export default function PlayingBottomNavigation({
   liked,
   likeCount,
-  loading,
+  likeLoading,
   onToggleLike,
+
+  bookmarked,
+  bookmarkCount,
+  bookmarkLoading,
+  onToggleBookmark,
 }) {
-  // const [value, setValue] = useState(0);
-  // Bookmark / Comment는 컴포넌트 내부에서만 토글 상태 관리 (임시로 관리)
-  const [bookmarkActive, setBookmarkActive] = useState(false);
+  // Comment는 컴포넌트 내부에서만 토글 상태 관리 (임시로 관리)
   const [commentActive, setCommentActive] = useState(false);
 
   return (
@@ -24,21 +27,22 @@ export default function PlayingBottomNavigation({
         value={-1}
       >
         <BottomNavigationAction
-         label={`${likeCount}`} 
+         label={`${likeCount ?? 0}`} 
          icon={
           <FavoriteIcon 
             color={liked ? "error" : "inherit"} //liked에 따라 색상 변경
           />}
           onClick={onToggleLike}
-          disabled={loading}  
+          disabled={!!likeLoading}  
         />
         <BottomNavigationAction 
-          label="Bookmark" 
+          label={`${bookmarkCount ?? 0}`}
           icon={
             <BookmarkIcon 
-              color={bookmarkActive ? "primary" : "inherit"}
+              color={bookmarked ? "primary" : "inherit"}
             />} 
-            onClick={() => setBookmarkActive((prev) => !prev)}
+            onClick={onToggleBookmark}
+            disabled={!!bookmarkLoading}
         />
         <BottomNavigationAction
           label="Comment" 
