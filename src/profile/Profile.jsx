@@ -1,5 +1,5 @@
 // src/pages/ProfilePage.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Avatar,
   Box,
@@ -23,7 +23,11 @@ import useUserStore from '../store/useUserStore';
 
 function ProfileHeader() {
   const currentUser = useUserStore((state)=>state.user);
-  console.log("profile header current user", currentUser)
+
+  useEffect(() => {
+      console.log("profile header current user", currentUser)
+    }, [currentUser])
+  
 
   return (
     <Box sx={{ px: { xs: 2, md: 6 }, pt: 6, pb: 4 }}>
@@ -126,7 +130,7 @@ function ProfileTabs({ value, onChange }) {
 }
 
 export default function Profile(props) {
-  const [tabValue, setTabValue] = useState(2); // "저장됨" 탭 기본 선택
+  const [tabValue, setTabValue] = useState(0); // "저장됨" 탭 기본 선택
 
   const handleTabChange = (_event, newValue) => {
     setTabValue(newValue);

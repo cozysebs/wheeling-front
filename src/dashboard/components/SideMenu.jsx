@@ -13,6 +13,7 @@ import useUserStore from '../../store/useUserStore';
 import LoginIcon from '@mui/icons-material/Login';
 import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const drawerWidth = 240;
 
@@ -30,7 +31,10 @@ const Drawer = styled(MuiDrawer)({
 export default function SideMenu() {
 
   const currentUser = useUserStore((state)=>state.user);
-  console.log("side menu current user: ", currentUser)
+
+  useEffect(() => {
+    console.log("side menu current user: ", currentUser)
+  }, [currentUser])
 
   return (
     <Drawer

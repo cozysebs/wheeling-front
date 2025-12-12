@@ -40,28 +40,22 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 export default function SignInCard() {
-  // const [emailError, setEmailError] = React.useState(false);
-  // const [emailErrorMessage, setEmailErrorMessage] = React.useState('');
-  // const [passwordError, setPasswordError] = React.useState(false);
-  // const [passwordErrorMessage, setPasswordErrorMessage] = React.useState('');
-  // const [open, setOpen] = React.useState(false);
   const [user, setUser] = useState(new User('','','',''));
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  console.log(submitted)
 
   const currentUser = useUserStore((state) => state.user);
   const navigate = useNavigate();
 
-  console.log(submitted)
-  console.log("current User: ", currentUser)
-
-  //로그인된 유저 정보가 남아있어서 profile 페이지로 가고 현재 profile 페이지가 없어서 404에러
+  // 로그인된 유저 정보가 남아있어서 profile 페이지로 가고 현재 profile 페이지가 없어서 404에러
+  // currentUser?.id
   useEffect(() => {
     if(currentUser?.id) {
-      navigate('/profile');
+      navigate('/profile', { replace: true});
     }
-  },[]);
+  },[currentUser?.id, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,7 +86,6 @@ export default function SignInCard() {
 
         setCurrentUser(userData);
 
-        console.log("UserDataToken: ", userData.token)
         // JWT 토큰을 localStorage에 저장 (api 인터셉터에서 사용)
         if (userData.token) {
           localStorage.setItem("authorization", userData.token)
@@ -103,50 +96,11 @@ export default function SignInCard() {
       .catch((error)=>{
         console.log(error);
         setErrorMessage('Username, or password is incorrect.');
-      });
-
-    setLoading(false);
+      })
+      .finally(() => {
+        setLoading(false);
+      })
   };
-
-  // const handleClickOpen = () => {
-  //   setOpen(true);
-  // };
-  // const handleClose = () => {
-  //   setOpen(false);
-  // };
-  // const handleSubmit = (event) => {
-  //   if (emailError || passwordError) {
-  //     event.preventDefault();
-  //     return;
-  //   }
-  //   const data = new FormData(event.currentTarget);
-  //   console.log({
-  //     email: data.get('email'),
-  //     password: data.get('password'),
-  //   });
-  // };
-  // const validateInputs = () => {
-  //   const email = document.getElementById('email');
-  //   const password = document.getElementById('password');
-  //   let isValid = true;
-  //   if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-  //     setEmailError(true);
-  //     setEmailErrorMessage('Please enter a valid email address.');
-  //     isValid = false;
-  //   } else {
-  //     setEmailError(false);
-  //     setEmailErrorMessage('');
-  //   }
-  //   if (!password.value || password.value.length < 6) {
-  //     setPasswordError(true);
-  //     setPasswordErrorMessage('Password must be at least 6 characters long.');
-  //     isValid = false;
-  //   } else {
-  //     setPasswordError(false);
-  //     setPasswordErrorMessage('');
-  //   }
-  //   return isValid;
-  // };
 
   return (
     <Card variant="outlined">
