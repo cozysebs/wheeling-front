@@ -4,7 +4,6 @@ import {
   Avatar,
   Box,
   Button,
-  Chip,
   Container,
   CssBaseline,
   Grid,
@@ -22,7 +21,17 @@ import AppTheme from '../shared-theme/AppTheme';
 import useUserStore from '../store/useUserStore';
 import GameList from './GameList';
 
-function ProfileHeader() {
+import AboutMeModal from './AboutMeModal';
+import EditProfileModal from './EditProfileModal';
+import DeleteAccountModal from './DeleteAccountModal';
+
+import {
+  getUserProfile,
+  updateMyProfile,
+  deleteMyAccount,
+} from "../service/user.service"
+
+function ProfileHeader({onOpenAbout}) {
   const currentUser = useUserStore((state)=>state.user);
 
   useEffect(() => {
@@ -60,12 +69,14 @@ function ProfileHeader() {
                 {/* {currentUser.username} */}
                 {currentUser.username ?? ""}
               </Typography>
+
               <Button
                 size="small"
                 variant="outlined"
                 sx={{ textTransform: 'none', fontSize: 12, px: 2 }}
+                onClick={onOpenAbout}
               >
-                프로필 편집
+                About me
               </Button>
             </Stack>
 
@@ -73,17 +84,12 @@ function ProfileHeader() {
             <Stack direction="row" spacing={3}>
               <Typography variant="body2">
                 <Box component="span" sx={{ fontWeight: 600 }}>
-                  게시물 0
+                  Followers 0
                 </Box>
               </Typography>
               <Typography variant="body2">
                 <Box component="span" sx={{ fontWeight: 600 }}>
-                  팔로워 0
-                </Box>
-              </Typography>
-              <Typography variant="body2">
-                <Box component="span" sx={{ fontWeight: 600 }}>
-                  팔로우 0
+                  Following 0
                 </Box>
               </Typography>
             </Stack>
@@ -132,7 +138,55 @@ function ProfileTabs({ value, onChange }) {
 }
 
 export default function Profile(props) {
+
+  const currentUser = useUserStore((s) => s.user);
+  const clearCurrentUser = useUserStore((s) => s.clearCurrentUser);
+
   const [tabValue, setTabValue] = useState(0); // "저장됨" 탭 기본 선택
+
+  // Nested modal states
+  const [aboutOpen, setAboutOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const [profileView, setProfileView] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+
+  const fetchProfileView = async () => {
+    if (!currentUser?.username) return;
+    setLoadingProfile(true);
+    try {
+      const res = await getUserProfile(currentUser.username);
+      setProfileView(res.data);
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  // About me 열릴 때만 조회(불필요한 호출 방지)
+  useEffect(() => {
+    if (!aboutOpen) return;
+    fetchProfileView();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [aboutOpen]);
+
+  const handleOpenAbout = () => setAboutOpen(true);
+
+  const handleSaveProfile = async (payload) => {
+    const res = await updateMyProfile(payload);
+    setProfileView(res.data); // About me에 즉시 반영
+  };
+
+  const handleDeleteAccount = async () => {
+    await deleteMyAccount();
+    clearCurrentUser();
+    // api.jsx가 쓰는 키에 맞춰 제거 (현재 api.txt 기준: accessToken)
+    localStorage.removeItem("authorization");
+    // 필요 시 이동
+    window.location.href = "/signinside";
+  };
+
+  const nestedActive = editOpen || deleteOpen;
 
   const handleTabChange = (_event, newValue) => {
     setTabValue(newValue);
@@ -144,7 +198,7 @@ export default function Profile(props) {
       <Box sx={{ bgcolor: 'background.default', minHeight: '100vh', display: 'flex' }}>
         <SideMenu />
         <Container maxWidth="lg" disableGutters>
-          <ProfileHeader />
+          <ProfileHeader onOpenAbout={handleOpenAbout} />
           <ProfileTabs value={tabValue} onChange={handleTabChange} />
           {/* 탭 컨텐츠 */}
           {tabValue === 0 && <GameList/>}
@@ -156,6 +210,30 @@ export default function Profile(props) {
             </Box>
           )}
         </Container>
+
+        {/* ===== Modals ===== */}
+        <AboutMeModal
+          open={aboutOpen}
+          onClose={() => setAboutOpen(false)}
+          loading={loadingProfile}
+          profile={profileView}
+          onOpenEdit={() => setEditOpen(true)}
+          nestedActive={nestedActive}
+        />
+
+        <EditProfileModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          profile={profileView}
+          onSave={handleSaveProfile}
+          onOpenDelete={() => setDeleteOpen(true)}
+        />
+
+        <DeleteAccountModal
+          open={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          onConfirm={handleDeleteAccount}
+        />
       </Box>
     </AppTheme>
   );

@@ -1,14 +1,37 @@
-import axios from "axios";
-import { BASE_API_URL } from "../common/constants";
-import { authHeader } from "./base.service";
+import { api } from "./api";
 
-const BASE_URL = BASE_API_URL+"/api/user";
+const BASE_URL = `/api/user`;
 
-class UserService {
-  changeRole(role) {
-    return axios.put(BASE_URL+"/change/"+role, {}, {headers:authHeader()})  //axios.put(url, data, headers)
-  }
-}
+//Role 변경
+export const changeRole = (role) => {
+  return api.put(`${BASE_URL}/change/${role}`, {});
+};
 
-const userService = new UserService();
-export default userService;
+// About me 조회 (로그인 사용자 누구나)
+export const getUserProfile = (username) => {
+  return api.get(`${BASE_URL}/profile/${username}`);
+};
+
+// 내 프로필 조회
+export const getMyProfile = () => {
+  return api.get(`${BASE_URL}/me/profile`);
+};
+
+// 내 프로필 수정
+export const updateMyProfile = (payload) => {
+  return api.put(`${BASE_URL}/me/profile`, payload);
+};
+
+// 회원 탈퇴
+export const deleteMyAccount = () => {
+  return api.delete(`${BASE_URL}/me`);
+};
+
+// 기존 default import 코드가 깨지지 않도록 호환용 default도 제공
+export default {
+  changeRole,
+  getUserProfile,
+  getMyProfile,
+  updateMyProfile,
+  deleteMyAccount,
+};
