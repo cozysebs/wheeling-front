@@ -20,6 +20,7 @@ import SideMenu from '../dashboard/components/SideMenu';
 import EqualizerIcon from '@mui/icons-material/Equalizer';
 import AppTheme from '../shared-theme/AppTheme';
 import useUserStore from '../store/useUserStore';
+import GameList from './GameList';
 
 function ProfileHeader() {
   const currentUser = useUserStore((state)=>state.user);
@@ -56,7 +57,8 @@ function ProfileHeader() {
             {/* 아이디 + 버튼 영역 */}
             <Stack direction="row" spacing={2} alignItems="center">
               <Typography variant="h6" sx={{ fontWeight: 500 }}>
-                {currentUser.username}
+                {/* {currentUser.username} */}
+                {currentUser.username ?? ""}
               </Typography>
               <Button
                 size="small"
@@ -89,7 +91,7 @@ function ProfileHeader() {
             {/* 이름 / 사용자 태그 */}
             <Stack spacing={0.5}>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                {currentUser.name}
+                {currentUser.name ?? ""}
               </Typography>
             </Stack>
           </Stack>
@@ -117,12 +119,12 @@ function ProfileTabs({ value, onChange }) {
         <Tab
           icon={<BookmarkIcon fontSize="small" />}
           iconPosition="start"
-          label="저장됨"
+          label="Bookmark"
         />
         <Tab
           icon={<EqualizerIcon fontSize="small" />}
           iconPosition="start"
-          label="통계"
+          label="Data"
         />
       </Tabs>
     </Box>
@@ -144,6 +146,15 @@ export default function Profile(props) {
         <Container maxWidth="lg" disableGutters>
           <ProfileHeader />
           <ProfileTabs value={tabValue} onChange={handleTabChange} />
+          {/* 탭 컨텐츠 */}
+          {tabValue === 0 && <GameList/>}
+          {tabValue === 1 && (
+            <Box sx={{ px: { xs: 2, md: 6 }, py: 4 }}>
+              <Typography variant='body2' color='text.secondary'>
+                Comming Soon
+              </Typography>
+            </Box>
+          )}
         </Container>
       </Box>
     </AppTheme>

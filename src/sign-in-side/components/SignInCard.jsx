@@ -88,16 +88,12 @@ export default function SignInCard() {
         // 서버에서 연관관계가 직렬화된 사용자 엔티티 전체를 내려줄 경우
         // Like 정보 등에서 다시 사용자 엔티티가 중첨되어 localStorage에
         // 무한히 쌓이는 것을 방지하기 위해 필요한 필드만 선별해 저장한다.
-        // const sanitizedUser = {
-        //   id: userData.id,
+        // setCurrentUser({
+        //   userId: userData.userId,
         //   username: userData.username,
         //   name: userData.name,
-        //   tel: userData.tel,
         //   role: userData.role,
-        //   token: userData.token,
-        // };
-
-        // setCurrentUser(sanitizedUser);
+        // })
 
         // JWT 토큰을 localStorage에 저장 (api 인터셉터에서 사용)
         if (userData.token) {
