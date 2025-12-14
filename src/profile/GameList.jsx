@@ -54,8 +54,8 @@ export default function GameList() {
         )}
 
         {state.items.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            아직 북마크한 게임이 없습니다.
+          <Typography variant="h3" color="text.secondary">
+            You haven’t bookmarked any games yet.
           </Typography>
         ) : (
           state.items.map((b)=> (

@@ -13,6 +13,7 @@ import PlayingBottomNavigation from './components/PlayingBottomNavigation';
 import { syncGamesService } from '../service/game.service';
 import { getGameLikeInfo, toggleGameLike } from '../service/game.service';
 import { getGameBookmarkInfo, toggleGameBookmark } from '../service/game.service';
+import { getRecommendedGames } from '../service/game.service';
 
 
 export default function Playing(props) {
@@ -21,11 +22,17 @@ export default function Playing(props) {
   const navigate = useNavigate();
   const [isPlaying, setIsPlaying] = useState(false);  //esc, enter로 게임 제어
   const gameFrameRef = useRef(null);    // iframe DOM을 잡아둘 ref
+  const [orderedGames, setOrderedGames] = useState(games);  // 추천 정렬된 게임 배열 상태
 
   // URL 기준 현재 인덱스 계산  ===> 명확하게 이해가 가진 않음
-  const currentIndex = games.findIndex((g)=> g.slug === gameSlug);
+  // const currentIndex = games.findIndex((g)=> g.slug === gameSlug);
+  // const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+  // const CurrentGameComponent = games[safeIndex].component;
+
+  // orderedGames 기준 인덱스 계산 
+  const currentIndex = orderedGames.findIndex((g) => g.slug === gameSlug);
   const safeIndex = currentIndex === -1 ? 0 : currentIndex;
-  const CurrentGameComponent = games[safeIndex].component;
+  const CurrentGameComponent = orderedGames[safeIndex]?.component ?? orderedGames[0].component;
 
   // 좋아요 상태
   const [likeState, setLikeState] = useState({
@@ -41,18 +48,57 @@ export default function Playing(props) {
     loading: false,
   });
 
-  // 게임 메타 정보를 백엔드와 동기화
-  useEffect(()=> {
-    const syncGames = async () => {
+  // 게임 메타 정보를 백엔드와 동기화, 최초 마운트 시 1회 호출
+  // useEffect(()=> {
+  //   const syncGames = async () => {
+  //     try {
+  //       await syncGamesService(games);  // gamesConfig 전체 전송
+  //       console.log("게임 동기화 완료");
+  //     } catch(e) {
+  //       console.error("게임 동기화 실패", e);
+  //     }
+  //   };
+  //   syncGames();
+  // }, []); 
+
+  // 마운트 시: (1) 게임 동기화 (2) 추천 목록으로 orderedGames 재정렬
+  useEffect(() => {
+    const init = async () => {
       try {
-        await syncGamesService(games);  // gamesConfig 전체 전송
+        await syncGamesService(games);
         console.log("게임 동기화 완료");
-      } catch(e) {
+      } catch (e) {
         console.error("게임 동기화 실패", e);
       }
+
+      try {
+        const res = await getRecommendedGames();
+
+        // 서버 응답 형태 방어: 배열이거나 { games: [...] } 형태 모두 처리
+        const list = Array.isArray(res.data) ? res.data : res.data?.games;
+        if (!Array.isArray(list)) return;
+
+        // list item이 {slug: "..."} 라고 가정 (권장). 혹시 문자열 slug 배열인 경우도 처리
+        const slugs = list.map((x) => (typeof x === "string" ? x : x.slug)).filter(Boolean);
+
+        const reordered = slugs
+          .map((slug) => games.find((g) => g.slug === slug))
+          .filter(Boolean);
+
+        // 서버가 내려주지 않은 게임은 뒤에 붙임(안전장치)
+        const missing = games.filter((g) => !reordered.some((r) => r.slug === g.slug));
+
+        if (reordered.length > 0) {
+          setOrderedGames([...reordered, ...missing]);
+        }
+      } catch (e) {
+        console.error("추천 게임 불러오기 실패", e);
+        // 권한(401) 등으로 실패해도 기본 games 순서로 계속 동작
+      }
     };
-    syncGames();
-  }, []); // 최초 마운트 시 1회 호출
+
+    init();
+  },[]);
 
   useEffect(()=>{
     const handleKeyDown = (e) => {
@@ -67,14 +113,14 @@ export default function Playing(props) {
       // 방향키(위아래)는 isPlaying === false 일 때만 동작
       if (!isPlaying) {
         if(e.key === 'ArrowDown') {
-          const nextIndex = Math.min(safeIndex + 1, games.length - 1);
-          const nextSlug = games[nextIndex].slug;
+          const nextIndex = Math.min(safeIndex + 1, orderedGames.length - 1);
+          const nextSlug = orderedGames[nextIndex].slug;
           if(nextIndex !== safeIndex) {
             navigate(`/playing/${nextSlug}`);
           }
         }else if(e.key === 'ArrowUp') {
           const prevIndex = Math.max(safeIndex-1, 0);
-          const prevSlug = games[prevIndex].slug;
+          const prevSlug = orderedGames[prevIndex].slug;
           if(prevIndex !== safeIndex) {
             navigate(`/playing/${prevSlug}`);
           }
@@ -99,7 +145,7 @@ export default function Playing(props) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('message', handleMessage);
     };
-  }, [isPlaying, safeIndex, navigate]);   // isPlaying, safeIndex, navigate 상태값이 변경될 때마다 useEffect의 콜백함수가 실행된다. 
+  }, [isPlaying, safeIndex, navigate, orderedGames.length]);   // isPlaying, safeIndex, navigate 상태값이 변경될 때마다 useEffect의 콜백함수가 실행된다. 
 
   // isPlaying이 true로 바뀔 때 게임 iframe에 포커스
   useEffect(()=>{
@@ -167,6 +213,7 @@ export default function Playing(props) {
     }
   };
 
+  // gameSlug 기준 북마크 정보 로딩
   useEffect(() => {
     const fetchBookmarkInfo = async () => {
       if (!gameSlug) return;
@@ -268,7 +315,7 @@ export default function Playing(props) {
                       transform: `translateY(-${safeIndex * 100}vh)`,   // safeIndex * 100vh 만큼 위로 올려서 n번째 게임을 화면 중앙에 위치
                     }}
                   >
-                    {games.map((game) => {
+                    {orderedGames.map((game) => {
                       const GameComp = game.component;
                       return (
                         <Box

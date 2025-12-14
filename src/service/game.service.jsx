@@ -58,3 +58,8 @@ export const toggleGameBookmark = (gameSlug) => {
 export const getMyBookmarks = () => {
   return api.get(`${BASE_URL}/bookmarks/me`);
 };
+
+// 추천 게임 목록
+export const getRecommendedGames = () => {
+  return api.get(`${BASE_URL}/recommendations`);
+};

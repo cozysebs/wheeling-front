@@ -204,7 +204,7 @@ export default function Profile(props) {
           {tabValue === 0 && <GameList/>}
           {tabValue === 1 && (
             <Box sx={{ px: { xs: 2, md: 6 }, py: 4 }}>
-              <Typography variant='body2' color='text.secondary'>
+              <Typography variant='h3' color='text.secondary'>
                 Comming Soon
               </Typography>
             </Box>

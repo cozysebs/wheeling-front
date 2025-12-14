@@ -13,7 +13,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { NavLink } from 'react-router-dom';
 
 const mainListItems = [
-  { text: 'Playing', icon: <PlayArrowIcon />, navlink: '/playing/2048' },
+  { text: 'Playing', icon: <PlayArrowIcon />, navlink: '/playing' },
   { text: 'Message', icon: <ForwardToInboxIcon />, navlink: '/commingsoon'  },
   { text: 'Profile', icon: <AccountCircleIcon />, navlink: '/profile'  },
 ];

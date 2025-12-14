@@ -8,6 +8,7 @@ import NotFound from "./guard/errorpage/NotFound"
 import UnAuthorized from "./guard/errorpage/UnAuthorized"
 import Profile from "./profile/Profile"
 import CommingSoon from "./common/CommingSoon"
+import PlayingEntry from "./dashboard/PlayingEntry"
 
 function App() {
 
@@ -15,8 +16,11 @@ function App() {
     <>
       <Routes>
         {/* 기본 진입은 첫 번째 게임으로 리다이렉트 */}
-        <Route path="/" element={ <Navigate to="/playing/2048" replace/> }/>
+        <Route path="/" element={ <Navigate to="/playing" replace/> }/>
+        {/* 추천 기반으로 첫 번째 slug를 결정해서 /playing/:gameSlug 로 이동 */}
++       <Route path="/playing" element={<PlayingEntry/>} />
         <Route path="/playing/:gameSlug" element={<Playing/>}/>
+
         <Route path="/signinside" element={<SignInSide/>}/>
         <Route path="/signup" element={<SignUp/>}/>
         <Route path="/profile" element={<Profile/>}/>
