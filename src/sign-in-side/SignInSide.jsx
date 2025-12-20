@@ -56,7 +56,7 @@ export default function SignInSide(props) {
               m: 'auto',
             }}
           >
-            <Content />
+            {/* <Content /> */}
             <SignInCard />
           </Stack>
         </Stack>

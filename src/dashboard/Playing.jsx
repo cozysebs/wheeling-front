@@ -24,11 +24,6 @@ export default function Playing(props) {
   const gameFrameRef = useRef(null);    // iframe DOM을 잡아둘 ref
   const [orderedGames, setOrderedGames] = useState(games);  // 추천 정렬된 게임 배열 상태
 
-  // URL 기준 현재 인덱스 계산  ===> 명확하게 이해가 가진 않음
-  // const currentIndex = games.findIndex((g)=> g.slug === gameSlug);
-  // const safeIndex = currentIndex === -1 ? 0 : currentIndex;
-  // const CurrentGameComponent = games[safeIndex].component;
-
   // orderedGames 기준 인덱스 계산 
   const currentIndex = orderedGames.findIndex((g) => g.slug === gameSlug);
   const safeIndex = currentIndex === -1 ? 0 : currentIndex;
@@ -46,20 +41,7 @@ export default function Playing(props) {
     bookmarked: false,
     bookmarkCount: 0,
     loading: false,
-  });
-
-  // 게임 메타 정보를 백엔드와 동기화, 최초 마운트 시 1회 호출
-  // useEffect(()=> {
-  //   const syncGames = async () => {
-  //     try {
-  //       await syncGamesService(games);  // gamesConfig 전체 전송
-  //       console.log("게임 동기화 완료");
-  //     } catch(e) {
-  //       console.error("게임 동기화 실패", e);
-  //     }
-  //   };
-  //   syncGames();
-  // }, []); 
+  }); 
 
   // 마운트 시: (1) 게임 동기화 (2) 추천 목록으로 orderedGames 재정렬
   useEffect(() => {
